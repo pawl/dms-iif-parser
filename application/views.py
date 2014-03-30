@@ -60,7 +60,7 @@ def home():
 				elif 'Funds Availability' in transaction[0][4]: # exclude these transactions
 					addToArray = False
 				elif transaction[0][6] == "Laser Consumables Fund":
-					transaction[0][4] = "Laser Cutter Consumables Fund"
+					transaction[0][4] = "Laser Cutter Operations Fund"
 					transaction[1][2] = "Earned Revenues:Revenue from program-related sa:Program service fees:Laser Cutter Fees"
 				elif transaction[0][6] == "Snack Fund":
 					transaction[0][4] = "Snack Fund"
