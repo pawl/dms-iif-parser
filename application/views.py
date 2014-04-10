@@ -65,6 +65,9 @@ def home():
 				elif transaction[0][6] == "Snack Fund":
 					transaction[0][4] = "Snack Fund"
 					transaction[1][2] = "Earned Revenues:Revenue from other sources:Misc revenue:Snacks Income"
+				elif transaction[0][6] == "Vinyl Cutter Consumables Fund":
+					transaction[0][4] = "Screen Printing Operations Fund"
+					transaction[1][2] = "Earned Revenues:Revenue from program-related sa:Program service fees:Vinyl Cutter Fees"
 				elif transaction[0][6] == "Maker Fellowship Fund":
 					transaction[0][4] = "Maker Fellowship Fund"
 					transaction[1][2] = "Contributed Support:Revenue from direct contributio:Individual/sm. business contrib"
