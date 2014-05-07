@@ -43,7 +43,7 @@ def home():
 					headers.append(x)
 				else:
 					transaction.append(x)
-			listOfUnsorted = set()
+			dictOfUnsorted = {}
 			p = re.compile('\d\d\d\d')
 			listOfDues = ["Rose Petefish Payment", "Traditional Monthly Subscription", "Joshua Masseo Payment", "Member Dues", "Membership", "Dallas Makerspace - Invoice", 'Transitionary Lock in Rate', 'Paul Wilson', 'Dallas+Makerspace+-+Invoice+']
 			
@@ -95,7 +95,10 @@ def home():
 					pass
 				else:
 					print transaction
-					listOfUnsorted.add(transaction[0][6])
+					# create list with key of missing Class, this is for storing entire unsorted transactions
+					if transaction[0][6] not in dictOfUnsorted.keys():
+						dictOfUnsorted[transaction[0][6]] = []
+					dictOfUnsorted[transaction[0][6]].append(transaction) # append unsorted transaction
 				#if transaction[0][6]:
 				#	transaction[0][6] = '"' + transaction[0][6] + '"' # fix errors due to lack of escaping
 				for i in range(1,len(transaction)):
@@ -107,9 +110,14 @@ def home():
 					for x in transaction:
 						output.append(x)
 						
-			if listOfUnsorted:
-				print listOfUnsorted
-				return "Could not categorize the following:" + "<br> ".join(listOfUnsorted)
+			# show problems if there are any unsorted items
+			if dictOfUnsorted:
+				outputMessage = "Could not categorize the Classes (bolded below) of the following items based on existing rules:<br>"
+				for unsortedCategory, unsortedList in dictOfUnsorted.iteritems():
+					outputMessage += "<b>" + unsortedCategory + "</b>"
+					outputMessage += '<br>'.join(map(str, unsortedList))
+				
+				return outputMessage
 			else:
 				def generate():
 					for row in output:
