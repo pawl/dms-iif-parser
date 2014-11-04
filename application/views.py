@@ -34,8 +34,12 @@ class Transaction:
 		self.splits = []
 		for split_count in xrange(1,len(full_transaction)):
 			self.splits.append(Split(full_transaction[split_count], self.qb_class))			
+	
+	def debit_class(self, value):
+		self.splits[0].qb_class = value
+		self.qb_class = value
 		
-	def set_debit_acct(self, value):
+	def debit_acct(self, value):
 		self.splits[0].account = value
 		
 	# returns the list needed for final output
@@ -57,7 +61,7 @@ class Split:
 		self.date = split[1]
 		self.account = split[2]
 		self.name = split[3]
-		self.qb_class = qb_class # by default, splits don't have a class - classes on transactions are ignored without this being filled
+		self.qb_class = "" # by default, splits don't have a class - classes on transactions are ignored without this being filled
 		self.amount = split[4]
 		try:
 			self.memo = split[5]
@@ -127,65 +131,65 @@ def home():
 				
 				# correct laser consumables transactions 
 				if re.match('\d\d\d\d', trans.memo): # pass when it's a 4 digit invoice number
-					trans.qb_class = ""
+					trans.debit_class("")
 					pass
 				elif 'Funds Availability' in trans.qb_class: # exclude these transactions
 					trans.ignored = True
 				elif trans.memo == "Laser Consumables Fund":
-					trans.qb_class = "Laser Cutter Operations Fund"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Laser Cutter Fees")
+					trans.debit_class("Laser Cutter Operations Fund")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Laser Cutter Fees")
 				elif trans.memo == "Snack Fund":
-					trans.qb_class = "Snack Fund"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Snack Sales:Snack Sales Income")
+					trans.debit_class("Snack Fund")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Snack Sales:Snack Sales Income")
 				elif trans.memo == "Machine Shop":
-					trans.qb_class = "Machine Shop Committee"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("Machine Shop Committee")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Vinyl Cutter Consumables Fund":
-					trans.qb_class = "Screen Printing Operations Fund"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Vinyl Cutter Fees")
+					trans.debit_class("Screen Printing Operations Fund")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Vinyl Cutter Fees")
 				elif trans.memo == "Maker Fellowship Fund":
-					trans.qb_class = "Maker Fellowship Fund"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("Maker Fellowship Fund")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Makerspace General Fund":
-					trans.qb_class = ""
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Screen Printing Consumables Fund":
-					trans.qb_class = "Screen Printing Operations Fund"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Screen Printing Fees")
+					trans.debit_class("Screen Printing Operations Fund")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Screen Printing Fees")
 				elif trans.memo == "3d Printer Consumables Fund":
-					trans.qb_class = "3D Printer Operations Fund"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:3d Printer Fees")
+					trans.debit_class("3D Printer Operations Fund")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:3d Printer Fees")
 				elif trans.memo == "New Space Build-Out":
-					trans.qb_class = "Project - Future Build-Out Fund"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("Project - Future Build-Out Fund")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Bridgeport Mill & Accessories":
-					trans.qb_class = "Project - Bridgeport Mill"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")	
+					trans.debit_class("Project - Bridgeport Mill")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "TIG Welder":
-					trans.qb_class = "Project - TIG Welder"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("Project - TIG Welder")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Mill Simulator":
-					trans.qb_class = "Project - Mill Simulator"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
+					trans.debit_class("Project - Mill Simulator")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Router Table":
-					trans.qb_class = "Project - Router Table"
-					trans.set_debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")			
+					trans.debit_class("Project - Router Table")
+					trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
 				elif trans.memo == "Non DMS Members - Sewing Class":
-					trans.qb_class = ""
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
+					trans.debit_class("")
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
 				elif trans.memo == "Monthly eBay Seller Fees":
-					trans.qb_class = ""
-					trans.set_debit_acct("Earned Revenues:Revenue from other sources:Expenses for sales of assets")		
+					trans.debit_class("")
+					trans.debit_acct("Earned Revenues:Revenue from other sources:Expenses for sales of assets")	
 				elif "Express Checkout Payment Received" in trans.qb_class: # classes seem to always be Express Checkout Payment Received
-					trans.qb_class = ""
+					trans.debit_class("")
 					trans.memo = "Express Checkout Payment Received"
-					trans.set_debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
-				elif trans.memo == "please ignore": # classes seem to always be Express Checkout Payment Received
-					trans.qb_class = ""
+					trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
+				elif trans.memo == "please ignore": # override
+					trans.debit_class("")
 					trans.memo = ""
 					pass	
 				elif any(x in trans.memo for x in considered_dues): # pass when it's membership dues
-					trans.qb_class = ""
+					trans.debit_class("")
 					pass
 				else:
 					print trans.full_transaction
