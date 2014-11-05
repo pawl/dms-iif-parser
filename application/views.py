@@ -93,23 +93,22 @@ def home():
 					full_transactions.append(transaction)
 				elif row[0] == "!TRNS": # only headers start with !
 					headers = [row]
-				elif row[0] == "!SPL":
+				elif row[0] in ["!SPL", "!ENDTRNS"]:
 					headers.append(row)
-				elif row[0] == "!ENDTRNS":
-					pass # ignore
 				else:
 					print row
 					raise Exception("Unexpected beginning of row. Expecting: TRNS, ENDTRNS, !TRNS, !SPL, !ENDTRNS")
 					
 			# check header in .iif file to see if it's expected
-			expected_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'AMOUNT', 'MEMO']]
+			expected_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'AMOUNT', 'MEMO'], ['!ENDTRNS']]
 			actual_header = [row for row in headers]
+			new_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!ENDTRNS']]
 			if not (expected_header == actual_header):
 				print "Expected: ", expected_header
 				print "Actual: ", actual_header
 				raise Exception("Expected header did not match actual header.")
 				
-			unidentified = {}
+			unmatched_trans = []
 			considered_dues = [
 				'Rose Petefish Payment', 
 				'Traditional Monthly Subscription', 
@@ -122,10 +121,6 @@ def home():
 				'Dallas+Makerspace+-+Invoice+'
 			]
 			
-			# this must be before the FOR loop!
-			# add CLASS to !SPL, this prevents quickbooks from ignoring classes on import
-			output = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO']]
-					
 			for full_transaction in full_transactions:
 				trans = Transaction(full_transaction)
 				
@@ -192,28 +187,25 @@ def home():
 					trans.debit_class("")
 					pass
 				else:
-					print trans.full_transaction
-					# create list with key of missing Class, this is for storing entire unsorted transactions
-					if trans.memo not in unidentified.keys():
-						unidentified[trans.memo] = []
-					unidentified[trans.memo].append(trans.full_transaction) # append unsorted transaction
+					unmatched_trans.append(trans) # append unsorted transaction
 				
 				if not trans.ignored:
-					for line in trans.full_transaction:
-						output.append(line)
+					try:
+						output += [line for line in trans.full_transaction]
+					except UnboundLocalError:
+						output = new_header + [line for line in trans.full_transaction]
 						
+			def generate(output):
+				for row in output:
+					yield '\t'.join(row) + '\n'
+					
 			# show problems if there are any unsorted items
-			if unidentified:
-				outputMessage = "Could not categorize the memo fields (bolded below) of the following items based on existing rules:<br>"
-				for unsortedCategory, unsortedList in unidentified.iteritems():
-					outputMessage += "<b>" + unsortedCategory + "</b>"
-					outputMessage += '<br>'.join(map(str, unsortedList))
-				return outputMessage
+			if unmatched_trans:
+				output_message = [["Error: Could not categorize the transactions below based on existing rules."]]
+				output = output_message + new_header + [row for trans in unmatched_trans for row in trans.full_transaction]
+				return Response(generate(output), mimetype='text/iif')
 			else:
-				def generate():
-					for row in output:
-						yield '\t'.join(row) + '\n'
-				return Response(generate(), mimetype='text/iif')
+				return Response(generate(output), mimetype='text/iif')
 	return render_template('home.html')
 
 def warmup():
