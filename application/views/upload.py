@@ -112,11 +112,11 @@ class Upload(BaseView):
 						# if any of the rules match, change the transaction
 						if re.search(rule.regex_rule, getattr(trans, rule.match_field)):
 							if rule.change_debit_class:
-								trans.debit_class(rule.debit_class)
+								trans.debit_class((rule.debit_class or ""))
 							if rule.change_debit_acct:
-								trans.debit_acct(rule.debit_acct)
+								trans.debit_acct((rule.debit_acct or ""))
 							if rule.change_memo:
-								trans.memo = rule.memo
+								trans.memo = (rule.memo or "")
 							if rule.ignore:
 								trans.ignored = rule.ignore
 							return trans, True # matched = True
