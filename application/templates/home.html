@@ -6,7 +6,7 @@
 		<p>(Note: Remember your secret key! It's your password.)</p>
 		<div class="form-group">
 			<label for="secret">Secret Key</label>
-			<input type="text" class="form-control" name="secret" id="secret" value="{{secret}}">
+			<input type="text" class="form-control" name="secret" id="secret" value="{% if secret %}{{secret}}{% endif %}">
 		</div>
 		<button type="submit" class="btn btn-default">Save</button>
     </form>
