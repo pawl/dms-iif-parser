@@ -110,7 +110,7 @@ class Upload(BaseView):
 				def change_transaction(trans):
 					for rule in Rule.query.filter(Rule.secret == session.get('secret')):
 						# if any of the rules match, change the transaction
-						if re.search(getattr(trans, rule.match_field), rule.regex_rule):
+						if re.search(rule.regex_rule, getattr(trans, rule.match_field)):
 							if rule.change_debit_class:
 								trans.debit_class(rule.debit_class)
 							if rule.change_debit_acct:
@@ -119,10 +119,8 @@ class Upload(BaseView):
 								trans.memo = rule.memo
 							if rule.ignore:
 								trans.ignored = rule.ignore
-							matched = True
-							return trans, matched
-					matched = False
-					return trans, matched
+							return trans, True # matched = True
+					return trans, False # matched = False
 					
 				unmatched_trans = []
 				for full_transaction in full_transactions:
