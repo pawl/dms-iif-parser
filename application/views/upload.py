@@ -106,7 +106,7 @@ class Upload(BaseView):
 					raise Exception("Expected header did not match actual header.")
 					
 				def change_transaction(trans):
-					for rule in Rule.query.all():
+					for rule in Rule.query.filter(Rule.secret == session.get('secret')):
 						# if any of the rules match, change the transaction
 						if re.search(getattr(trans, rule.match_field), rule.regex_rule):
 							if rule.change_debit_class:
