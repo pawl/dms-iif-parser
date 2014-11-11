@@ -101,8 +101,10 @@ class Upload(BaseView):
 				# check header in .iif file to see if it's expected
 				expected_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'AMOUNT', 'MEMO'], ['!ENDTRNS']]
 				actual_header = [row for row in headers]
-				new_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!ENDTRNS']]
-				if not (expected_header == actual_header):
+				if expected_header == actual_header:
+					# add CLASS to the split transaction, otherwise Quickbooks will ignore CLASS
+					new_header = [['!TRNS', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!SPL', 'DATE', 'ACCNT', 'NAME', 'CLASS', 'AMOUNT', 'MEMO'], ['!ENDTRNS']]
+				else:
 					raise Exception("Expected header did not match actual header.")
 					
 				def change_transaction(trans):
@@ -125,85 +127,9 @@ class Upload(BaseView):
 				unmatched_trans = []
 				for full_transaction in full_transactions:
 					trans = Transaction(full_transaction)
-					'''
-					if re.search('\d\d\d\d', trans.memo): # no quickbooks class when it's a 4 digit invoice number
-						trans.debit_class("")
-					elif re.search('Funds Availability', trans.qb_class): # exclude these transactions
-						trans.ignored = True
-					elif re.search("Laser Consumables Fund", trans.memo):
-						trans.debit_class("Laser Cutter Operations Fund")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Laser Cutter Fees")
-					elif re.search("Snack Fund", trans.memo):
-						trans.debit_class("Snack Fund")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Snack Sales:Snack Sales Income")
-					elif re.search("Machine Shop", trans.memo):
-						trans.debit_class("Machine Shop Committee")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Vinyl Cutter Consumables Fund", trans.memo):
-						trans.debit_class("Screen Printing Operations Fund")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Vinyl Cutter Fees")
-					elif re.search("Maker Fellowship Fund", trans.memo):
-						trans.debit_class("Maker Fellowship Fund")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Makerspace General Fund", trans.memo):
-						trans.debit_class("")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Screen Printing Consumables Fund", trans.memo):
-						trans.debit_class("Screen Printing Operations Fund")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Screen Printing Fees")
-					elif re.search("3d Printer Consumables Fund", trans.memo):
-						trans.debit_class("3D Printer Operations Fund")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:3d Printer Fees")
-					elif re.search("New Space Build-Out", trans.memo):
-						trans.debit_class("Project - Future Build-Out Fund")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Bridgeport Mill & Accessories", trans.memo):
-						trans.debit_class("Project - Bridgeport Mill")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("TIG Welder", trans.memo):
-						trans.debit_class("Project - TIG Welder")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Mill Simulator", trans.memo):
-						trans.debit_class("Project - Mill Simulator")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Router Table", trans.memo):
-						trans.debit_class("Project - Router Table")
-						trans.debit_acct("Contributed Support:Revenue from direct contributio:Individual/sm. business contrib")
-					elif re.search("Non DMS Members - Sewing Class", trans.memo):
-						trans.debit_class("")
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
-					elif re.search("Monthly eBay Seller Fees", trans.memo):
-						trans.debit_class("")
-						trans.debit_acct("Earned Revenues:Revenue from other sources:Expenses for sales of assets")	
-					elif re.search("Express Checkout Payment Received", trans.qb_class): # classes seem to always be Express Checkout Payment Received
-						trans.debit_class("")
-						trans.memo = "Express Checkout Payment Received"
-						trans.debit_acct("Earned Revenues:Revenue from program-related sa:Program service fees:Class Fees")
-					elif re.search("please ignore", trans.memo): # override
-						trans.debit_class("")
-						trans.memo = ""
-					elif re.search('Rose Petefish Payment', trans.memo):
-						trans.debit_class("")
-					elif re.search('Traditional Monthly Subscription', trans.memo):
-						trans.debit_class("")
-					elif re.search('Joshua Masseo Payment', trans.memo):
-						trans.debit_class("")
-					elif re.search('Member Dues', trans.memo):
-						trans.debit_class("")
-					elif re.search('Membership', trans.memo):
-						trans.debit_class("")
-					elif re.search('Dallas Makerspace - Invoice', trans.memo):
-						trans.debit_class("")
-					elif re.search('Transitionary Lock in Rate', trans.memo):
-						trans.debit_class("")
-					elif re.search('Paul Wilson', trans.memo):
-						trans.debit_class("")
-					elif re.search('Dallas+Makerspace+-+Invoice+', trans.memo):
-						trans.debit_class("")
-					'''
-					trans, matched = change_transaction(trans)
-					
-					if not matched:						
+
+					trans, matched = change_transaction(trans)					
+					if not matched:				
 						unmatched_trans.append(trans) # append unsorted transaction
 					
 					if not trans.ignored:
