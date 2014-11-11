@@ -8,6 +8,12 @@ app = Flask(__name__)
 app.config.from_object('application.default_settings')
 app.config.from_envvar('PRODUCTION_SETTINGS', silent=True)
 
+# log to papertrail in heroku
+if not app.debug:
+	import logging
+	app.logger.addHandler(logging.StreamHandler())
+	app.logger.setLevel(logging.INFO)
+	
 # Connect to database with sqlalchemy.
 db = SQLAlchemy(app)
 
