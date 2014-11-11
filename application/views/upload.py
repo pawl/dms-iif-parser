@@ -2,7 +2,7 @@ import csv
 import re
 
 from flask.ext.admin import BaseView, expose
-from flask import request, url_for, redirect, Response
+from flask import request, url_for, redirect, Response, session
 from application import app, db
 from application.models import Rule
 
@@ -63,6 +63,13 @@ class Split:
 		return ['SPL', self.date, self.account, self.name, self.qb_class, self.amount, self.memo]
 		
 class Upload(BaseView):
+	# don't allow access unless the user has entered their secret
+	def is_accessible(self):
+		return session.get('secret')
+		
+	def is_visible(self):
+		return session.get('secret')
+		
 	@expose('/', methods=['GET', 'POST'])
 	def index(self):		
 		def allowed_file(filename):

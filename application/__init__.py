@@ -14,6 +14,6 @@ db = SQLAlchemy(app)
 from application.models import *
 from application.views import *
 
-admin = Admin(app, name='IIF Parser', template_mode="bootstrap3")
+admin = Admin(app, name='IIF Parser', static_url_path="/assets", template_mode="bootstrap3", index_view=HomeView(name='Secret Key', template='home.html', url='/'))
 admin.add_view(Upload(name='Upload/Parse'))
 admin.add_view(RulesView(Rule, db.session, name="Rules"))
