@@ -51,3 +51,8 @@ class RulesView(ModelView):
 		'memo': 'New Memo Value',
 		'ignore': 'Discard Transaction'
 	}
+	form_choices = {
+		'match_field': [
+			('memo', 'memo'), ('qb_class', 'qb_class')
+		]
+	}
